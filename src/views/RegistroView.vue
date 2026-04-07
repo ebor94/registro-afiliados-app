@@ -3,20 +3,33 @@ import { ref } from 'vue'
 import { useAfiliadoStore } from '@/stores/useAfiliadoStore'
 import { useToastStore } from '@/stores/useToastStore'
 import AfiliadoForm from '@/components/afiliado/AfiliadoForm.vue'
+import SegurosForm from '@/components/afiliado/SegurosForm.vue'
+import ValorContrato from '@/components/afiliado/ValorContrato.vue'
 import BeneficiarioForm from '@/components/beneficiario/BeneficiarioForm.vue'
 import BeneficiarioList from '@/components/beneficiario/BeneficiarioList.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import CaptchaModal from '@/components/ui/CaptchaModal.vue'
+import PagoInicialModal from '@/components/ui/PagoInicialModal.vue'
+import CedulaUpload from '@/components/ui/CedulaUpload.vue'
 
 const store = useAfiliadoStore()
 const toast = useToastStore()
+const showPago   = ref(false)
 const showCaptcha = ref(false)
+
+// Ref al componente BeneficiarioForm para llamar editarBeneficiario
+const beneficiarioFormRef = ref(null)
 
 function handleAddBeneficiario(beneficiario) {
   const added = store.addBeneficiario(beneficiario)
-  if (added) {
-    toast.success('Beneficiario agregado')
-  }
+  if (added) toast.success('Beneficiario agregado')
+}
+
+// Recibe el evento @edit de BeneficiarioList y carga los datos en el form
+function handleEditBeneficiario(beneficiario, index) {
+  beneficiarioFormRef.value?.editarBeneficiario(beneficiario, index)
+  // Hacer scroll al formulario de beneficiario para que el usuario lo vea
+  beneficiarioFormRef.value?.$el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 function handleSubmitClick() {
@@ -24,8 +37,19 @@ function handleSubmitClick() {
     toast.warning('Complete todos los campos obligatorios del afiliado')
     return
   }
-  // Mostrar captcha antes de enviar
+  // Paso 1: mostrar modal de pago inicial antes del captcha
+  showPago.value = true
+}
+
+function handlePagoConfirmado(pagoData) {
+  // Guardar datos de pago en el store y abrir captcha
+  store.setPago(pagoData)
+  showPago.value = false
   showCaptcha.value = true
+}
+
+function handlePagoCancel() {
+  showPago.value = false
 }
 
 async function handleCaptchaVerified() {
@@ -52,26 +76,37 @@ function handleReset() {
 
 <template>
   <div class="space-y-6">
+
+    <!-- Titulo -->
     <div>
       <h2 class="text-2xl font-bold text-gray-900">Registro de Afiliado / Grupo Familiar</h2>
       <p class="text-sm text-gray-500 mt-1">Complete los datos del afiliado y agregue los beneficiarios</p>
     </div>
 
-    <!-- Formulario del afiliado -->
+    <!-- Secciones 1-8: AfiliadoForm contiene solicitud, datos personales,
+         ubicacion, empresa, comercial, CENS, actividad economica y observaciones -->
     <AfiliadoForm />
 
-    <!-- Seccion de beneficiarios -->
+    <!-- Seccion 9: Grupo familiar -->
     <fieldset class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
       <legend class="text-base font-bold text-gray-800 px-2">Grupo Familiar</legend>
-
       <div class="space-y-5 mt-2">
-        <!-- Formulario para agregar beneficiario -->
-        <BeneficiarioForm @add="handleAddBeneficiario" />
-
-        <!-- Lista de beneficiarios -->
-        <BeneficiarioList />
+        <BeneficiarioForm
+          ref="beneficiarioFormRef"
+          @add="handleAddBeneficiario"
+        />
+        <BeneficiarioList @edit="handleEditBeneficiario" />
       </div>
     </fieldset>
+
+    <!-- Seccion 10: Seguros -->
+    <SegurosForm />
+
+    <!-- Seccion 11: Valor del contrato -->
+    <ValorContrato />
+
+    <!-- Seccion 12: Foto de la cédula -->
+    <CedulaUpload />
 
     <!-- Botones de accion -->
     <div class="flex flex-wrap gap-3 pb-8">
@@ -95,11 +130,20 @@ function handleReset() {
       </BaseButton>
     </div>
 
-    <!-- Modal captcha matematico -->
+    <!-- Modal: registro de primera cuota / soporte de pago -->
+    <PagoInicialModal
+      :visible="showPago"
+      :valor-cuota="store.contrato.valorCuota"
+      @confirmar="handlePagoConfirmado"
+      @cancel="handlePagoCancel"
+    />
+
+    <!-- Modal captcha matematico (se abre tras confirmar el pago) -->
     <CaptchaModal
       :visible="showCaptcha"
       @verified="handleCaptchaVerified"
       @cancel="handleCaptchaCancel"
     />
+
   </div>
 </template>

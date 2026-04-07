@@ -1,5 +1,5 @@
 <script setup>
-defineProps({
+const props = defineProps({
   modelValue: { type: [String, Number], default: '' },
   label: { type: String, default: '' },
   type: { type: String, default: 'text' },
@@ -8,10 +8,16 @@ defineProps({
   required: { type: Boolean, default: false },
   disabled: { type: Boolean, default: false },
   readonly: { type: Boolean, default: false },
-  inputmode: { type: String, default: undefined }
+  inputmode: { type: String, default: undefined },
+  uppercase: { type: Boolean, default: false }   // ← nueva prop
 })
 
-defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue'])
+
+function onInput(e) {
+  const val = props.uppercase ? e.target.value.toUpperCase() : e.target.value
+  emit('update:modelValue', val)
+}
 </script>
 
 <template>
@@ -27,12 +33,15 @@ defineEmits(['update:modelValue'])
       :disabled="disabled"
       :readonly="readonly"
       :inputmode="inputmode"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="onInput"
       class="block w-full rounded-lg border-gray-300 shadow-sm text-sm transition-colors duration-150
              focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
              disabled:bg-gray-100 disabled:text-gray-500
              read-only:bg-gray-50 read-only:text-gray-600"
-      :class="{ 'border-red-400 focus:border-red-500 focus:ring-red-500/20': error }"
+      :class="[
+        { 'border-red-400 focus:border-red-500 focus:ring-red-500/20': error },
+        { 'uppercase': uppercase }
+      ]"
     />
     <p v-if="error" class="mt-1 text-xs text-red-600">{{ error }}</p>
   </div>

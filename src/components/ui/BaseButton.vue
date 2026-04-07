@@ -10,7 +10,8 @@ const variants = {
   primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 disabled:bg-blue-300',
   secondary: 'bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-400',
   danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 disabled:bg-red-300',
-  success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 disabled:bg-green-300'
+  success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-green-500 disabled:bg-green-300',
+  warning: 'bg-amber-500 text-white hover:bg-amber-600 focus:ring-amber-400 disabled:bg-amber-300'
 }
 </script>
 

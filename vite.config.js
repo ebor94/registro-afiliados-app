@@ -4,6 +4,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [vue()],
+  base: '/afiliados/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
@@ -13,7 +14,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'https://mantix-api.losolivoscucuta.com:8444',
         changeOrigin: true
       }
     }
