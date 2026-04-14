@@ -39,42 +39,6 @@ defineEmits(['close'])
           <!-- Body con scroll -->
           <div class="overflow-y-auto flex-1 px-6 py-5 space-y-6">
 
-            <!-- ── Tarifas Adicionales ─────────────────────────── -->
-            <section>
-              <h3 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
-                <span class="inline-block w-2 h-2 rounded-full bg-green-600"></span>
-                Tarifas Adicionales
-              </h3>
-              <div class="overflow-x-auto rounded-lg border border-gray-200">
-                <table class="w-full text-sm border-collapse">
-                  <thead>
-                    <tr class="bg-yellow-400 text-gray-900">
-                      <th class="px-4 py-2 text-left font-bold border-b border-yellow-500">Edad</th>
-                      <th class="px-4 py-2 text-center font-bold border-b border-yellow-500">PLATINO<br><span class="font-normal text-xs">Valor mes</span></th>
-                      <th class="px-4 py-2 text-center font-bold border-b border-yellow-500">ORO<br><span class="font-normal text-xs">Valor mes</span></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                      <td class="px-4 py-2 text-gray-700">Menores de 70 años</td>
-                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 4.207</td>
-                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 6.338</td>
-                    </tr>
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                      <td class="px-4 py-2 text-gray-700">Menores de 80 años</td>
-                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 20.215</td>
-                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 26.771</td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                      <td class="px-4 py-2 text-gray-700">Mayores de 80 años</td>
-                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 29.800</td>
-                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 36.800</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
-
             <!-- ── Grupos Asegurables ──────────────────────────── -->
             <section>
               <h3 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-1.5">
@@ -85,21 +49,7 @@ defineEmits(['close'])
 
               <div class="space-y-3">
 
-                <!-- 1. Solo Titular -->
-                <div class="rounded-lg border border-gray-200 overflow-hidden">
-                  <div class="bg-gray-700 text-white px-4 py-2.5 flex items-center gap-2">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                    </svg>
-                    <span class="font-semibold text-sm">Solo Titular — Plan Unipersonal</span>
-                  </div>
-                  <div class="px-4 py-3 bg-gray-50 text-sm text-gray-700">
-                    Aplica solo el <strong>afiliado titular</strong> sin grupo familiar (trabajador).
-                    Disponible en plan <strong>Integral Platino</strong> y <strong>Integral Oro</strong>.
-                  </div>
-                </div>
-
-                <!-- 2. Grupo Básico Soltero -->
+                <!-- 1. Grupo Básico Soltero -->
                 <div class="rounded-lg border border-blue-200 overflow-hidden">
                   <div class="bg-blue-600 text-white px-4 py-2.5 flex items-center gap-2">
                     <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -197,6 +147,42 @@ defineEmits(['close'])
                   </div>
                 </div>
 
+              </div>
+            </section>
+
+            <!-- ── Tarifas Adicionales ─────────────────────────── -->
+            <section>
+              <h3 class="text-sm font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+                <span class="inline-block w-2 h-2 rounded-full bg-green-600"></span>
+                Tarifas Adicionales
+              </h3>
+              <div class="overflow-x-auto rounded-lg border border-gray-200">
+                <table class="w-full text-sm border-collapse">
+                  <thead>
+                    <tr class="bg-yellow-400 text-gray-900">
+                      <th class="px-4 py-2 text-left font-bold border-b border-yellow-500">Edad</th>
+                      <th class="px-4 py-2 text-center font-bold border-b border-yellow-500">PLATINO<br><span class="font-normal text-xs">Valor mes</span></th>
+                      <th class="px-4 py-2 text-center font-bold border-b border-yellow-500">ORO<br><span class="font-normal text-xs">Valor mes</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                      <td class="px-4 py-2 text-gray-700">Menores de 70 años</td>
+                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 4.207</td>
+                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 6.338</td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                      <td class="px-4 py-2 text-gray-700">Menores de 80 años</td>
+                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 20.215</td>
+                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 26.771</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-2 text-gray-700">Mayores de 80 años</td>
+                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 29.800</td>
+                      <td class="px-4 py-2 text-center font-medium text-gray-800">$ 36.800</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </section>
 
