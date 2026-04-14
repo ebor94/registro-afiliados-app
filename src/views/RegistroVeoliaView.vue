@@ -1,18 +1,31 @@
 <template>
   <div class="space-y-6">
     <!-- Banner de actualización de datos -->
-  <div class="relative w-full overflow-hidden rounded-xl shadow-md">
-      <img 
-        src="@/assets/images/ActualizacionVeolia.jpeg" 
+    <div class="relative w-full overflow-hidden rounded-xl shadow-md">
+      <img
+        src="@/assets/images/ActualizacionVeolia.jpeg"
         alt="Actualizar tus datos - La mejor forma de estar en contacto contigo"
         class="w-full h-auto object-cover"
       />
-     
     </div>
 
-    <div>
-      <h2 class="text-2xl font-bold text-gray-900">Registro de Afiliado / Grupo Familiar</h2>
-      <p class="text-sm text-gray-500 mt-1">Complete los datos del afiliado y agregue los beneficiarios</p>
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Registro de Afiliado / Grupo Familiar</h2>
+        <p class="text-sm text-gray-500 mt-1">Complete los datos del afiliado y agregue los beneficiarios</p>
+      </div>
+
+      <!-- Botón para re-abrir el modal informativo -->
+      <button
+        @click="showInfo = true"
+        class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors flex-shrink-0"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Grupos asegurables y tarifas
+      </button>
     </div>
 
     <!-- Formulario del afiliado -->
@@ -24,10 +37,10 @@
 
       <div class="space-y-5 mt-2">
         <!-- Formulario para agregar beneficiario -->
-        <BeneficiarioForm @add="handleAddBeneficiario" />
+        <BeneficiarioForm ref="beneficiarioFormRef" @add="handleAddBeneficiario" />
 
         <!-- Lista de beneficiarios -->
-        <BeneficiarioList />
+        <BeneficiarioList @edit="handleEditBeneficiario" />
       </div>
     </fieldset>
 
@@ -53,6 +66,12 @@
       </BaseButton>
     </div>
 
+    <!-- Modal informativo: grupos asegurables y tarifas (se abre automáticamente al cargar) -->
+    <InfoGruposModal
+      :visible="showInfo"
+      @close="showInfo = false"
+    />
+
     <!-- Modal captcha matematico -->
     <CaptchaModal
       :visible="showCaptcha"
@@ -71,10 +90,15 @@ import BeneficiarioForm from '@/components/beneficiario/BeneficiarioForm.vue'
 import BeneficiarioList from '@/components/beneficiario/BeneficiarioList.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import CaptchaModal from '@/components/ui/CaptchaModal.vue'
+import InfoGruposModal from '@/components/ui/InfoGruposModal.vue'
 
-const store = useAfiliadoStore()
-const toast = useToastStore()
+const store  = useAfiliadoStore()
+const toast  = useToastStore()
+
 const showCaptcha = ref(false)
+const showInfo    = ref(true)   // Se abre automáticamente al cargar la página
+
+const beneficiarioFormRef = ref(null)
 
 onMounted(() => {
   store.setFormMode('veolia')
@@ -82,9 +106,12 @@ onMounted(() => {
 
 function handleAddBeneficiario(beneficiario) {
   const added = store.addBeneficiario(beneficiario)
-  if (added) {
-    toast.success('Beneficiario agregado')
-  }
+  if (added) toast.success('Beneficiario agregado')
+}
+
+function handleEditBeneficiario(beneficiario, index) {
+  beneficiarioFormRef.value?.editarBeneficiario(beneficiario, index)
+  beneficiarioFormRef.value?.$el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 function handleSubmitClick() {
@@ -92,7 +119,6 @@ function handleSubmitClick() {
     toast.warning('Complete todos los campos obligatorios del afiliado')
     return
   }
-  // Mostrar captcha antes de enviar
   showCaptcha.value = true
 }
 
