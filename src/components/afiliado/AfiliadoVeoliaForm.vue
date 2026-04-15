@@ -18,6 +18,7 @@
         placeholder="Ej: 20906230"
         inputmode="numeric"
         :required="true"
+        :uppercase="true"
         :error="store.errors['numeroDocumento']"
       />
 
@@ -25,12 +26,14 @@
         v-model="store.afiliado.primerApellido"
         label="Primer apellido"
         :required="true"
+        :uppercase="true"
         :error="store.errors['primerApellido']"
       />
 
       <BaseInput
         v-model="store.afiliado.segundoApellido"
         label="Segundo apellido"
+        :uppercase="true"
         :error="store.errors['segundoApellido']"
       />
 
@@ -38,12 +41,14 @@
         v-model="store.afiliado.primerNombre"
         label="Primer nombre"
         :required="true"
+        :uppercase="true"
         :error="store.errors['primerNombre']"
       />
 
       <BaseInput
         v-model="store.afiliado.segundoNombre"
         label="Segundo nombre"
+        :uppercase="true"
         :error="store.errors['segundoNombre']"
       />
 
@@ -121,6 +126,7 @@
         v-model="store.afiliado.barrio"
         label="Barrio"
         placeholder="Ej: Centro, La Esperanza"
+        :uppercase="true"
         :error="store.errors['barrio']"
       />
 
@@ -129,6 +135,7 @@
           v-model="store.afiliado.direccion"
           label="Direccion"
           placeholder="Ej: Avenida 16 Calle 14 N 30"
+          :uppercase="true"
           :error="store.errors['direccion']"
         />
       </div>

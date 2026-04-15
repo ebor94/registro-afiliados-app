@@ -65,7 +65,7 @@ function formatValor(v) {
               <th class="border border-blue-200 px-3 py-2 text-left">Nombres</th>
               <th class="border border-blue-200 px-3 py-2 text-left">F. Nacimiento</th>
               <th class="border border-blue-200 px-3 py-2 text-left">Edad</th>
-              <th class="border border-blue-200 px-3 py-2 text-right">Valor</th>
+              <th v-if="store.formMode !== 'veolia'" class="border border-blue-200 px-3 py-2 text-right">Valor</th>
               <th class="border border-blue-200 px-3 py-2 text-right">Tipo solicitud</th>
               <th class="border border-blue-200 px-3 py-2 text-center">Accion</th>
             </tr>
@@ -87,7 +87,7 @@ function formatValor(v) {
               <td class="border border-gray-200 px-3 py-2">{{ fullName(b) }}</td>
               <td class="border border-gray-200 px-3 py-2 text-xs">{{ b.fechaNacimiento }}</td>
               <td class="border border-gray-200 px-3 py-2 text-center">{{ b.edad }}</td>
-              <td class="border border-gray-200 px-3 py-2 text-right text-xs">{{ formatValor(b.valorPorPersona) }}</td>
+              <td v-if="store.formMode !== 'veolia'" class="border border-gray-200 px-3 py-2 text-right text-xs">{{ formatValor(b.valorPorPersona) }}</td>
               <td class="border border-gray-200 px-3 py-2 text-right text-xs">{{ b.estado }}</td>
               <td class="border border-gray-200 px-3 py-2 text-center">
                 <div class="flex items-center justify-center gap-2">
@@ -140,7 +140,7 @@ function formatValor(v) {
               <th class="border border-purple-200 px-3 py-2 text-left">Nombres</th>
               <th class="border border-purple-200 px-3 py-2 text-left">F. Nacimiento</th>
               <th class="border border-purple-200 px-3 py-2 text-left">Edad</th>
-              <th class="border border-purple-200 px-3 py-2 text-right">Valor</th>
+              <th v-if="store.formMode !== 'veolia'" class="border border-purple-200 px-3 py-2 text-right">Valor</th>
               <th class="border border-purple-200 px-3 py-2 text-right">Tipo solicitud</th>
               <th class="border border-purple-200 px-3 py-2 text-center">Accion</th>
             </tr>
@@ -167,7 +167,7 @@ function formatValor(v) {
               <td class="border border-gray-200 px-3 py-2">{{ fullName(b) }}</td>
               <td class="border border-gray-200 px-3 py-2 text-xs">{{ b.fechaNacimiento }}</td>
               <td class="border border-gray-200 px-3 py-2 text-center">{{ b.edad }}</td>
-              <td class="border border-gray-200 px-3 py-2 text-right text-xs">
+              <td v-if="store.formMode !== 'veolia'" class="border border-gray-200 px-3 py-2 text-right text-xs">
                 <span v-if="b.estado === 'RETIRO'" class="text-red-500 font-medium">$0 (retiro)</span>
                 <span v-else>{{ formatValor(b.valorPorPersona) }}</span>
               </td>

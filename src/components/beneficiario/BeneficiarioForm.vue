@@ -457,6 +457,19 @@ const tiposDocumento = [
         :required="true"
       />
 
+      <!-- Leyenda ADT -->
+      <p class="col-span-full flex items-start gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
+        <svg class="w-3.5 h-3.5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span>
+          ¿No conoces el número de documento del beneficiario? Selecciona
+          <strong class="font-semibold">ADT</strong> como tipo — el sistema asignará
+          un código automáticamente usando el documento del titular.
+        </span>
+      </p>
+
       <BaseInput
         v-model="form.numeroDocumento"
         label="Numero de documento"
@@ -512,8 +525,8 @@ const tiposDocumento = [
         :uppercase="true"
       />
 
-      <!-- Valor por persona (automático para adicionales, manual para de ley) -->
-      <div>
+      <!-- Valor por persona (automático para adicionales, manual para de ley) — oculto en Veolia -->
+      <div v-if="store.formMode !== 'veolia'">
         <BaseInput
           v-model="form.valorPorPersona"
           label="Valor por persona"
