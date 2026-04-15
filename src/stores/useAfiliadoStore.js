@@ -7,6 +7,9 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
   // Modo del formulario: 'standard' requiere info comercial, 'veolia' no
   const formMode = ref('standard')
 
+  // Aceptación de tratamiento de datos — obligatorio para registrar
+  const aceptaTratamiento = ref(false)
+
   const afiliado = reactive({
     // ── Datos de la solicitud ─────────────────────────────────
     sucursal: '',
@@ -137,7 +140,7 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
       afiliado.celular
     )
 
-    if (formMode.value === 'veolia') return baseValid
+    if (formMode.value === 'veolia') return baseValid && aceptaTratamiento.value
 
     const comercialValid = Boolean(afiliado.canal && afiliado.producto && afiliado.grupo)
 
@@ -145,7 +148,7 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
       ? Boolean(afiliado.usuarioCens && afiliado.cicloEstrato && afiliado.relacionPredio)
       : true
 
-    return baseValid && comercialValid && censValid
+    return baseValid && comercialValid && censValid && aceptaTratamiento.value
   })
 
   // ── Métodos ────────────────────────────────────────────────
@@ -378,6 +381,7 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
     modoCorreccion.value     = false
     afiliadoEditandoId.value = null
     errors.value = {}
+    aceptaTratamiento.value  = false
   }
 
   async function submitRegistro() {
@@ -447,6 +451,7 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
   return {
     afiliado,
     formMode,
+    aceptaTratamiento,
     beneficiarios,
     beneficiariosFiles,
     seguros,

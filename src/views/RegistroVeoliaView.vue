@@ -44,6 +44,9 @@
       </div>
     </fieldset>
 
+    <!-- Aceptación de tratamiento de datos -->
+    <AceptacionDatosCheck v-model="store.aceptaTratamiento" />
+
     <!-- Botones de accion -->
     <div class="flex flex-wrap gap-3 pb-8">
       <BaseButton
@@ -91,6 +94,7 @@ import BeneficiarioList from '@/components/beneficiario/BeneficiarioList.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import CaptchaModal from '@/components/ui/CaptchaModal.vue'
 import InfoGruposModal from '@/components/ui/InfoGruposModal.vue'
+import AceptacionDatosCheck from '@/components/ui/AceptacionDatosCheck.vue'
 
 const store  = useAfiliadoStore()
 const toast  = useToastStore()

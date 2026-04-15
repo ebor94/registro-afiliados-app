@@ -11,6 +11,7 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import CaptchaModal from '@/components/ui/CaptchaModal.vue'
 import PagoInicialModal from '@/components/ui/PagoInicialModal.vue'
 import CedulaUpload from '@/components/ui/CedulaUpload.vue'
+import AceptacionDatosCheck from '@/components/ui/AceptacionDatosCheck.vue'
 
 const store = useAfiliadoStore()
 const toast = useToastStore()
@@ -107,6 +108,9 @@ function handleReset() {
 
     <!-- Seccion 12: Foto de la cédula -->
     <CedulaUpload />
+
+    <!-- Aceptación de tratamiento de datos -->
+    <AceptacionDatosCheck v-model="store.aceptaTratamiento" />
 
     <!-- Botones de accion -->
     <div class="flex flex-wrap gap-3 pb-8">
