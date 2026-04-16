@@ -44,12 +44,12 @@ const routes = [
     component: MisAfiliacionesView,
     meta: { requiereAuth: true }
   },
-  // Corrección de afiliación rechazada — solo el asesor dueño o admin
+  // Corrección de afiliación rechazada — acceso público via hash cifrado
   {
     path: '/corregir/:hash',
     name: 'corregirAfiliacion',
     component: CorregirView,
-    meta: { requiereAuth: true }
+    meta: { publica: true }
   },
   // Consulta pública de afiliado por número de documento
   {

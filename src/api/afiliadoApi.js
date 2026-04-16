@@ -39,7 +39,18 @@ export const verificarOtpPublico       = (doc, otp)  => publicApiClient.post('/a
 export const actualizarContactoPublico = (id, datos) => publicApiClient.put(`/afiliados/${id}/datos-contacto`, datos)
 
 // ── OTP Reenvío ───────────────────────────────────────────────
-export const solicitarOtpReenvio = (id) => apiClient.post(`/afiliados/${id}/solicitar-otp-reenvio`)
+export const solicitarOtpReenvio = (id) => publicApiClient.post(`/afiliados/${id}/solicitar-otp-reenvio`)
+
+// ── Corrección pública via hash ───────────────────────────────
+export const getAfiliadoPorHash = (hash) => publicApiClient.get(`/afiliados/por-hash/${hash}`)
+export const reenviarAfiliacionPublico = (id, payload) => {
+  if (payload instanceof FormData) {
+    return publicApiClient.put(`/afiliados/${id}/reenviar`, payload, {
+      headers: { 'Content-Type': undefined }
+    })
+  }
+  return publicApiClient.put(`/afiliados/${id}/reenviar`, payload)
+}
 
 // ── Empresas ──────────────────────────────────────────────────
 export const buscarEmpresaPorNit = (nit) => apiClient.get(`/empresas/${nit}`)

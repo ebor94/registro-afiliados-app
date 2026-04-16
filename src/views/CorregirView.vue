@@ -3,8 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAfiliadoStore } from '@/stores/useAfiliadoStore'
 import { useToastStore } from '@/stores/useToastStore'
-import { getAfiliado, solicitarOtpReenvio } from '@/api/afiliadoApi'
-import { decodeId } from '@/utils/hashId'
+import { getAfiliadoPorHash, solicitarOtpReenvio } from '@/api/afiliadoApi'
 import AfiliadoForm from '@/components/afiliado/AfiliadoForm.vue'
 import SegurosForm from '@/components/afiliado/SegurosForm.vue'
 import ValorContrato from '@/components/afiliado/ValorContrato.vue'
@@ -98,26 +97,17 @@ function handleReset() {
 
 onMounted(async () => {
   const hash = route.params.hash
-  const id = await decodeId(hash)
-  if (!id) {
-    toast.error('Enlace inválido o expirado')
-    router.push({ name: 'misAfiliaciones' })
-    return
-  }
-  realId.value = id
   try {
-    const { data } = await getAfiliado(id)
+    // getAfiliadoPorHash decodifica el hash en el backend y valida que esté rechazado
+    const { data } = await getAfiliadoPorHash(hash)
     if (!data.success || !data.data) throw new Error('No encontrado')
-    if (!data.data.rechazado && !data.data.rechazadoParcial) {
-      toast.warning('Esta afiliación no está rechazada')
-      router.push({ name: 'misAfiliaciones' })
-      return
-    }
+    realId.value = data.data.id
     afiliadoInfo.value = data.data
     store.cargarParaCorregir(data.data)
-  } catch {
+  } catch (e) {
     errorCarga.value = true
-    toast.error('No se pudo cargar la afiliación')
+    const msg = e.response?.data?.message || 'No se pudo cargar la afiliación'
+    toast.error(msg)
   } finally {
     cargando.value = false
   }

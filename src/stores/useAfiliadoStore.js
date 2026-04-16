@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, reactive, computed } from 'vue'
-import { createAfiliado, createAfiliadoVeolia, reenviarAfiliacion as reenviarApi } from '@/api/afiliadoApi'
+import { createAfiliado, createAfiliadoVeolia, reenviarAfiliacionPublico as reenviarApi } from '@/api/afiliadoApi'
 import { useToastStore } from './useToastStore'
 
 export const useAfiliadoStore = defineStore('afiliado', () => {
