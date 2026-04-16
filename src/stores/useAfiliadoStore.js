@@ -264,6 +264,14 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
       })
     }
 
+    // El afiliado ya aceptó el tratamiento al registrarse; en modo corrección
+    // no se vuelve a mostrar el checkbox, así que se fuerza true para que
+    // isFormValid no quede bloqueado.
+    aceptaTratamiento.value = true
+
+    // Determinar el modo de formulario según el origen del afiliado
+    formMode.value = a.origen === 'VEOLIA' ? 'veolia' : 'standard'
+
     modoCorreccion.value     = true
     afiliadoEditandoId.value = a.id
   }
