@@ -28,7 +28,10 @@ export const getAfiliadosPendientes    = ()             => apiClient.get('/afili
 export const getAfiliacionesRechazadas = ()             => apiClient.get('/afiliados/rechazados')
 export const aprobarAfiliado           = (id)           => apiClient.post(`/afiliados/${id}/aprobar`)
 export const rechazarAfiliado          = (id, motivo)   => apiClient.post(`/afiliados/${id}/rechazar`, { motivo })
-export const reenviarAfiliacion        = (id, payload)  => apiClient.put(`/afiliados/${id}/reenviar`, payload)
+export const reenviarAfiliacion              = (id, payload)  => apiClient.put(`/afiliados/${id}/reenviar`, payload)
+export const rechazarBeneficiariosAfiliado   = (id, payload)  => apiClient.post(`/afiliados/${id}/rechazar-parcial`, payload)
+export const consultarAfiliado               = (numerodocumento) => publicApiClient.get(`/afiliados/consulta/${numerodocumento}`)
+export const actualizarBeneficiariosConsulta = (id, beneficiarios) => publicApiClient.put(`/afiliados/${id}/actualizar-beneficiarios`, { beneficiarios })
 
 // ── Empresas ──────────────────────────────────────────────────
 export const buscarEmpresaPorNit = (nit) => apiClient.get(`/empresas/${nit}`)

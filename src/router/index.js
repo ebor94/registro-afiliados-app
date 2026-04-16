@@ -50,6 +50,13 @@ const routes = [
     name: 'corregirAfiliacion',
     component: CorregirView,
     meta: { requiereAuth: true }
+  },
+  // Consulta pública de afiliado por número de documento
+  {
+    path: '/afiliaciones/:numerodocumento',
+    name: 'consultaAfiliado',
+    component: () => import('@/views/ConsultaAfiliadoView.vue'),
+    meta: { publica: true }
   }
 ]
 

@@ -131,17 +131,23 @@
                   <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nacimiento</th>
                   <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Edad</th>
                   <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Motivo rechazo</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-100">
-                <tr v-for="b in beneficiariosDeLey" :key="b.id">
-                  <td class="px-3 py-2 text-gray-800 font-medium whitespace-nowrap">{{ nombreCompleto(b) }}</td>
+                <tr v-for="b in beneficiariosDeLey" :key="b.id" :class="b.activo === 0 ? 'bg-red-50 opacity-70' : ''">
+                  <td class="px-3 py-2 font-medium whitespace-nowrap" :class="b.activo === 0 ? 'text-red-700 line-through' : 'text-gray-800'">{{ nombreCompleto(b) }}</td>
                   <td class="px-3 py-2 text-gray-600 whitespace-nowrap">{{ b.tipoDocumento }} {{ b.numeroDocumento }}</td>
                   <td class="px-3 py-2 text-gray-600 whitespace-nowrap">{{ b.parentesco }}</td>
                   <td class="px-3 py-2 text-gray-600 whitespace-nowrap">{{ formatDate(b.fechaNacimiento) }}</td>
                   <td class="px-3 py-2 text-gray-600">{{ b.edad }}</td>
                   <td class="px-3 py-2">
-                    <span :class="badgeEstado(b.estado)">{{ b.estado }}</span>
+                    <span v-if="b.activo === 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">INACTIVO</span>
+                    <span v-else :class="badgeEstado(b.estado)">{{ b.estado }}</span>
+                  </td>
+                  <td class="px-3 py-2 text-xs text-gray-500 max-w-xs">
+                    <span v-if="b.motivoRechazo" class="text-red-600">{{ b.motivoRechazo }}</span>
+                    <span v-else class="text-gray-300">—</span>
                   </td>
                 </tr>
               </tbody>
@@ -165,17 +171,23 @@
                   <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nacimiento</th>
                   <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Edad</th>
                   <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
+                  <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Motivo rechazo</th>
                 </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-100">
-                <tr v-for="b in beneficiariosAdicional" :key="b.id">
-                  <td class="px-3 py-2 text-gray-800 font-medium whitespace-nowrap">{{ nombreCompleto(b) }}</td>
+                <tr v-for="b in beneficiariosAdicional" :key="b.id" :class="b.activo === 0 ? 'bg-red-50 opacity-70' : ''">
+                  <td class="px-3 py-2 font-medium whitespace-nowrap" :class="b.activo === 0 ? 'text-red-700 line-through' : 'text-gray-800'">{{ nombreCompleto(b) }}</td>
                   <td class="px-3 py-2 text-gray-600 whitespace-nowrap">{{ b.tipoDocumento }} {{ b.numeroDocumento }}</td>
                   <td class="px-3 py-2 text-gray-600 whitespace-nowrap">{{ b.parentesco }}</td>
                   <td class="px-3 py-2 text-gray-600 whitespace-nowrap">{{ formatDate(b.fechaNacimiento) }}</td>
                   <td class="px-3 py-2 text-gray-600">{{ b.edad }}</td>
                   <td class="px-3 py-2">
-                    <span :class="badgeEstado(b.estado)">{{ b.estado }}</span>
+                    <span v-if="b.activo === 0" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">INACTIVO</span>
+                    <span v-else :class="badgeEstado(b.estado)">{{ b.estado }}</span>
+                  </td>
+                  <td class="px-3 py-2 text-xs text-gray-500 max-w-xs">
+                    <span v-if="b.motivoRechazo" class="text-red-600">{{ b.motivoRechazo }}</span>
+                    <span v-else class="text-gray-300">—</span>
                   </td>
                 </tr>
               </tbody>

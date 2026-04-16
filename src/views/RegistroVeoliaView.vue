@@ -81,6 +81,22 @@
       @verified="handleCaptchaVerified"
       @cancel="handleCaptchaCancel"
     />
+
+    <!-- Panel de consulta: ¿Ya estás registrado? -->
+    <div class="border-t border-gray-200 pt-6 mt-2 pb-8">
+      <button
+        @click="showConsulta = !showConsulta"
+        class="flex items-center gap-2 text-sm font-medium text-teal-700 hover:text-teal-900 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        {{ showConsulta ? 'Ocultar consulta' : '¿Ya estás registrado? Consulta y actualiza tu información' }}
+      </button>
+      <div v-if="showConsulta" class="mt-5">
+        <ConsultaAfiliadoView />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -95,12 +111,14 @@ import BaseButton from '@/components/ui/BaseButton.vue'
 import CaptchaModal from '@/components/ui/CaptchaModal.vue'
 import InfoGruposModal from '@/components/ui/InfoGruposModal.vue'
 import AceptacionDatosCheck from '@/components/ui/AceptacionDatosCheck.vue'
+import ConsultaAfiliadoView from '@/views/ConsultaAfiliadoView.vue'
 
 const store  = useAfiliadoStore()
 const toast  = useToastStore()
 
-const showCaptcha = ref(false)
-const showInfo    = ref(true)   // Se abre automáticamente al cargar la página
+const showCaptcha  = ref(false)
+const showInfo     = ref(true)   // Se abre automáticamente al cargar la página
+const showConsulta = ref(false)
 
 const beneficiarioFormRef = ref(null)
 

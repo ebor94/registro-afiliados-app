@@ -27,17 +27,33 @@
       </button>
     </div>
 
-    <!-- Buscador -->
-    <div class="relative">
-      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
-      <input
-        v-model="busqueda"
-        type="text"
-        placeholder="Buscar por nombre o número de documento..."
-        class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
+    <!-- Buscador + filtro origen -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="relative flex-1">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          v-model="busqueda"
+          type="text"
+          placeholder="Buscar por nombre o número de documento..."
+          class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
+      <!-- Filtro origen -->
+      <div class="flex rounded-lg border border-gray-300 overflow-hidden text-sm font-medium">
+        <button
+          v-for="op in origenOpciones"
+          :key="op.value"
+          @click="filtroOrigen = op.value"
+          class="px-3 py-2 transition-colors"
+          :class="filtroOrigen === op.value
+            ? 'bg-blue-600 text-white'
+            : 'bg-white text-gray-600 hover:bg-gray-50'"
+        >
+          {{ op.label }}
+        </button>
+      </div>
     </div>
 
     <!-- Estado de carga -->
@@ -95,8 +111,22 @@
                 </svg>
               </td>
               <td class="px-4 py-3">
-                <p class="text-sm font-semibold text-gray-800">{{ nombreCompleto(afiliado) }}</p>
-                <p class="text-xs text-gray-400">Edad: {{ afiliado.edad }} años · {{ labelSexo(afiliado.sexo) }}</p>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="text-sm font-semibold text-gray-800">{{ nombreCompleto(afiliado) }}</p>
+                  <span
+                    v-if="afiliado.origen === 'VEOLIA'"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-100 text-teal-700 border border-teal-200"
+                  >
+                    Veolia
+                  </span>
+                  <span
+                    v-if="tieneBeneficiariosInactivos(afiliado)"
+                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-100 text-orange-700 border border-orange-200"
+                  >
+                    Parcialmente rechazado
+                  </span>
+                </div>
+                <p class="text-xs text-gray-400 mt-0.5">Edad: {{ afiliado.edad }} años · {{ labelSexo(afiliado.sexo) }}</p>
               </td>
               <td class="px-4 py-3">
                 <p class="text-sm text-gray-700">{{ afiliado.numeroDocumento }}</p>
@@ -178,30 +208,50 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { getAfiliadosPendientes, aprobarAfiliado as aprobarApi, rechazarAfiliado as rechazarApi } from '@/api/afiliadoApi'
+import {
+  getAfiliadosPendientes,
+  aprobarAfiliado as aprobarApi,
+  rechazarAfiliado as rechazarApi,
+  rechazarBeneficiariosAfiliado
+} from '@/api/afiliadoApi'
 import { useToastStore } from '@/stores/useToastStore'
 import AfiliadoDetalle from '@/components/aprobacion/AfiliadoDetalle.vue'
 import ConfirmarRechazoModal from '@/components/ui/ConfirmarRechazoModal.vue'
 
 const toast = useToastStore()
 
-const pendientes          = ref([])
-const cargando            = ref(false)
-const aprobando           = ref(null)
-const rechazando          = ref(null)
-const expandidos          = ref(new Set())
-const busqueda            = ref('')
-const showRechazoModal    = ref(false)
+const pendientes           = ref([])
+const cargando             = ref(false)
+const aprobando            = ref(null)
+const rechazando           = ref(null)
+const expandidos           = ref(new Set())
+const busqueda             = ref('')
+const filtroOrigen         = ref('TODOS')
+const showRechazoModal     = ref(false)
 const afiliadoParaRechazar = ref(null)
 
+const origenOpciones = [
+  { value: 'TODOS',  label: 'Todos'   },
+  { value: 'ASESOR', label: 'Asesor'  },
+  { value: 'VEOLIA', label: 'Veolia'  }
+]
+
 const filtrados = computed(() => {
+  let list = pendientes.value
+  if (filtroOrigen.value !== 'TODOS') {
+    list = list.filter(a => a.origen === filtroOrigen.value)
+  }
   const q = busqueda.value.toLowerCase().trim()
-  if (!q) return pendientes.value
-  return pendientes.value.filter(a =>
+  if (!q) return list
+  return list.filter(a =>
     nombreCompleto(a).toLowerCase().includes(q) ||
     a.numeroDocumento.includes(q)
   )
 })
+
+function tieneBeneficiariosInactivos(afiliado) {
+  return afiliado.beneficiarios?.some(b => b.activo === 0)
+}
 
 async function cargar() {
   cargando.value = true
@@ -235,15 +285,26 @@ function abrirRechazo(afiliado) {
   showRechazoModal.value = true
 }
 
-async function confirmarRechazo(motivo) {
+async function confirmarRechazo({ motivo, beneficiarioIds }) {
   const afiliado = afiliadoParaRechazar.value
   showRechazoModal.value = false
   rechazando.value = afiliado.id
+
   try {
-    await rechazarApi(afiliado.id, motivo)
-    pendientes.value = pendientes.value.filter(a => a.id !== afiliado.id)
-    expandidos.value.delete(afiliado.id)
-    toast.info(`Registro de ${nombreCompleto(afiliado)} rechazado.`)
+    if (beneficiarioIds.length > 0) {
+      // Rechazo parcial: inactiva beneficiarios seleccionados; afiliado queda pendiente
+      const { data } = await rechazarBeneficiariosAfiliado(afiliado.id, { motivo, beneficiarioIds })
+      // Actualizar la fila en la lista (no eliminar)
+      const idx = pendientes.value.findIndex(a => a.id === afiliado.id)
+      if (idx !== -1) pendientes.value[idx] = data.data
+      toast.info(`${beneficiarioIds.length} beneficiario(s) de ${nombreCompleto(afiliado)} inactivados.`)
+    } else {
+      // Rechazo total: comportamiento original
+      await rechazarApi(afiliado.id, motivo)
+      pendientes.value = pendientes.value.filter(a => a.id !== afiliado.id)
+      expandidos.value.delete(afiliado.id)
+      toast.info(`Registro de ${nombreCompleto(afiliado)} rechazado.`)
+    }
   } catch {
     toast.error('Error al rechazar el registro. Intenta de nuevo.')
   } finally {
@@ -258,7 +319,6 @@ function toggleExpand(id) {
   } else {
     expandidos.value.add(id)
   }
-  // Forzar reactividad
   expandidos.value = new Set(expandidos.value)
 }
 
