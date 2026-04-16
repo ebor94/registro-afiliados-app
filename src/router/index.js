@@ -4,6 +4,7 @@ import RegistroVeoliaView  from '../views/RegistroVeoliaView.vue'
 import AprobacionesView    from '../views/AprobacionesView.vue'
 import MisAfiliacionesView from '../views/MisAfiliacionesView.vue'
 import CorregirView        from '../views/CorregirView.vue'
+import CorregirVeoliaView  from '../views/CorregirVeoliaView.vue'
 import LoginView           from '../views/LoginView.vue'
 
 const routes = [
@@ -49,6 +50,13 @@ const routes = [
     path: '/corregir/:hash',
     name: 'corregirAfiliacion',
     component: CorregirView,
+    meta: { publica: true }
+  },
+  // Corrección de afiliación Veolia rechazada — acceso público via hash cifrado
+  {
+    path: '/corregir-veolia/:hash',
+    name: 'corregirVeolia',
+    component: CorregirVeoliaView,
     meta: { publica: true }
   },
   // Consulta pública de afiliado por número de documento

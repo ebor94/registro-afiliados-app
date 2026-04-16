@@ -4,9 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAfiliadoStore } from '@/stores/useAfiliadoStore'
 import { useToastStore } from '@/stores/useToastStore'
 import { getAfiliadoPorHash, solicitarOtpReenvio } from '@/api/afiliadoApi'
-import AfiliadoForm from '@/components/afiliado/AfiliadoForm.vue'
-import SegurosForm from '@/components/afiliado/SegurosForm.vue'
-import ValorContrato from '@/components/afiliado/ValorContrato.vue'
+import AfiliadoVeoliaForm from '@/components/afiliado/AfiliadoVeoliaForm.vue'
 import BeneficiarioForm from '@/components/beneficiario/BeneficiarioForm.vue'
 import BeneficiarioList from '@/components/beneficiario/BeneficiarioList.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -67,7 +65,6 @@ async function handleOtpVerificado(otp) {
     if (err.response?.status === 401) {
       otpError.value = 'Código OTP inválido o expirado. Intenta de nuevo.'
     }
-    // Otros errores ya manejados en el store (toast)
   } finally {
     otpCargando.value = false
   }
@@ -98,13 +95,12 @@ function handleReset() {
 onMounted(async () => {
   const hash = route.params.hash
   try {
-    // getAfiliadoPorHash decodifica el hash en el backend y valida que esté rechazado
     const { data } = await getAfiliadoPorHash(hash)
     if (!data.success || !data.data) throw new Error('No encontrado')
 
-    // Si el afiliado es de origen Veolia, redirigir al formulario correspondiente
-    if (data.data.origen === 'VEOLIA') {
-      router.replace({ name: 'corregirVeolia', params: { hash } })
+    // Seguridad: si no es Veolia, redirigir al formulario estándar
+    if (data.data.origen !== 'VEOLIA') {
+      router.replace({ name: 'corregirAfiliacion', params: { hash } })
       return
     }
 
@@ -120,7 +116,6 @@ onMounted(async () => {
   }
 })
 
-// Al salir del view, limpiar el modo corrección si no se envió
 onBeforeUnmount(() => {
   if (store.modoCorreccion) store.resetForm()
 })
@@ -153,7 +148,7 @@ onBeforeUnmount(() => {
       </button>
     </div>
 
-    <!-- ── Formulario ────────────────────────────────────────── -->
+    <!-- ── Formulario Veolia ─────────────────────────────────── -->
     <template v-else>
 
       <!-- Header -->
@@ -183,8 +178,8 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Formulario (reutiliza los mismos componentes que RegistroView) -->
-      <AfiliadoForm />
+      <!-- Formulario Veolia (sin SegurosForm ni ValorContrato) -->
+      <AfiliadoVeoliaForm />
 
       <fieldset class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
         <legend class="text-base font-bold text-gray-800 px-2">Grupo Familiar</legend>
@@ -196,9 +191,6 @@ onBeforeUnmount(() => {
           <BeneficiarioList @edit="handleEditBeneficiario" />
         </div>
       </fieldset>
-
-      <SegurosForm />
-      <ValorContrato />
 
       <!-- Botones de acción -->
       <div class="flex flex-wrap gap-3 pb-8">

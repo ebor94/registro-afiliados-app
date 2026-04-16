@@ -284,6 +284,7 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
     try {
       const payload = {
         ...afiliado,
+        diferenteAlContratante: afiliado.diferenteAlContratante ? 1 : 0,
         beneficiarios: beneficiarios.value,
         seguros:       seguros.value,
         contrato:      { ...contrato },
