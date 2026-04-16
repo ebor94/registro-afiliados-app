@@ -80,6 +80,17 @@ function labelSexo(val) {
   return { F: 'Femenino', M: 'Masculino', X: 'No binario' }[val] ?? val
 }
 
+/** Retorna true si el afiliado tiene rechazo parcial (beneficiarios inactivados) */
+function esParcial(a) {
+  return !!a.rechazadoParcial && !a.rechazado
+}
+
+/** Motivo a mostrar para rechazos parciales (del primer beneficiario con motivoRechazo) */
+function motivoBeneficiarios(a) {
+  const b = (a.beneficiarios || []).find(b => b.activo === 0 && b.motivoRechazo)
+  return b?.motivoRechazo || 'Beneficiarios requieren corrección'
+}
+
 onMounted(cargar)
 </script>
 
@@ -241,10 +252,29 @@ onMounted(cargar)
               <!-- Columna condicional: motivo (rechazadas) o fecha (pendientes) -->
               <td class="hidden lg:table-cell px-4 py-3">
                 <template v-if="tab === 'rechazadas'">
+                  <!-- Badge tipo de rechazo -->
+                  <span
+                    v-if="esParcial(afiliado)"
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 mb-1"
+                  >
+                    ✏️ Corrección parcial
+                  </span>
+                  <span
+                    v-else
+                    class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 mb-1"
+                  >
+                    ✗ Rechazado
+                  </span>
+                  <!-- Motivo -->
                   <p v-if="afiliado.motivoRechazo"
                      class="text-xs text-red-700 bg-red-50 border border-red-200 rounded px-2 py-1 max-w-xs truncate"
                      :title="afiliado.motivoRechazo">
                     {{ afiliado.motivoRechazo }}
+                  </p>
+                  <p v-else-if="esParcial(afiliado)"
+                     class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 max-w-xs truncate"
+                     :title="motivoBeneficiarios(afiliado)">
+                    {{ motivoBeneficiarios(afiliado) }}
                   </p>
                   <span v-else class="text-xs text-gray-400">Sin motivo</span>
                 </template>
@@ -274,15 +304,23 @@ onMounted(cargar)
             <tr v-if="expandidos.has(afiliado.id)" :key="`det-${afiliado.id}`">
               <td :colspan="tab === 'rechazadas' ? 6 : 5" class="p-0">
                 <!-- Banner motivo si rechazada -->
-                <div v-if="tab === 'rechazadas' && afiliado.motivoRechazo"
-                     class="flex items-start gap-3 bg-red-50 border-b border-red-200 px-5 py-3">
-                  <svg class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <div v-if="tab === 'rechazadas' && (afiliado.motivoRechazo || esParcial(afiliado))"
+                     :class="['flex items-start gap-3 border-b px-5 py-3',
+                              esParcial(afiliado)
+                                ? 'bg-amber-50 border-amber-200'
+                                : 'bg-red-50 border-red-200']">
+                  <svg :class="['w-5 h-5 mt-0.5 flex-shrink-0', esParcial(afiliado) ? 'text-amber-500' : 'text-red-500']"
+                       fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                       d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                   </svg>
                   <div>
-                    <p class="text-sm font-semibold text-red-800">Motivo del rechazo:</p>
-                    <p class="text-sm text-red-700 mt-0.5">{{ afiliado.motivoRechazo }}</p>
+                    <p :class="['text-sm font-semibold', esParcial(afiliado) ? 'text-amber-800' : 'text-red-800']">
+                      {{ esParcial(afiliado) ? 'Corrección requerida en beneficiarios:' : 'Motivo del rechazo:' }}
+                    </p>
+                    <p :class="['text-sm mt-0.5', esParcial(afiliado) ? 'text-amber-700' : 'text-red-700']">
+                      {{ afiliado.motivoRechazo || motivoBeneficiarios(afiliado) }}
+                    </p>
                   </div>
                 </div>
                 <AfiliadoDetalle :afiliado="afiliado" />

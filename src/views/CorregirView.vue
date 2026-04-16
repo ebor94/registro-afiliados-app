@@ -108,7 +108,7 @@ onMounted(async () => {
   try {
     const { data } = await getAfiliado(id)
     if (!data.success || !data.data) throw new Error('No encontrado')
-    if (!data.data.rechazado) {
+    if (!data.data.rechazado && !data.data.rechazadoParcial) {
       toast.warning('Esta afiliación no está rechazada')
       router.push({ name: 'misAfiliaciones' })
       return

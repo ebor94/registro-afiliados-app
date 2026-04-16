@@ -108,7 +108,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useAfiliadoStore } from '@/stores/useAfiliadoStore'
 import { useToastStore } from '@/stores/useToastStore'
 import AfiliadoForm from '@/components/afiliado/AfiliadoVeoliaForm.vue'
@@ -131,6 +131,43 @@ const beneficiarioFormRef = ref(null)
 
 onMounted(() => {
   store.setFormMode('veolia')
+
+  // ── Widget de chat WhatsApp ───────────────────────────────
+  const widgetOptions = {
+    enabled: true,
+    chatButtonSetting: {
+      backgroundColor: '#34ba73',
+      ctaText: 'Escribenos, te ayudamos',
+      position: 'right',
+      marginLeft: '20',
+      marginRight: '20',
+      marginBottom: '20'
+    },
+    brandSetting: {
+      autoShow: false,
+      brandName: 'Los Olivos - Veolia',
+      brandImg: 'https://storage.googleapis.com/formailfiles/logo-1msg.svg',
+      welcomeText: 'Necesitas ayuda? Estamos para servirle',
+      messageText: 'Hola, Soy de Veolia , necesito asesoria',
+      ctaText: 'Escribenos, te ayudamos',
+      phoneNumber: '573176652197'
+    }
+  }
+  const script = document.createElement('script')
+  script.type = 'text/javascript'
+  script.src = 'https://storage.googleapis.com/formailfiles/1msgWidget.js'
+  script.onload = () => {
+    if (window.CreateWhatsappChatWidget) {
+      window.CreateWhatsappChatWidget(widgetOptions)
+    }
+  }
+  document.head.appendChild(script)
+})
+
+onBeforeUnmount(() => {
+  // Remover el widget al salir de la página
+  document.querySelectorAll('[class*="wachat"], [id*="wachat"], [class*="1msg"], [id*="1msg"]')
+    .forEach(el => el.remove())
 })
 
 function handleAddBeneficiario(beneficiario) {
