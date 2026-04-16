@@ -33,6 +33,14 @@ export const rechazarBeneficiariosAfiliado   = (id, payload)  => apiClient.post(
 export const consultarAfiliado               = (numerodocumento) => publicApiClient.get(`/afiliados/consulta/${numerodocumento}`)
 export const actualizarBeneficiariosConsulta = (id, beneficiarios) => publicApiClient.put(`/afiliados/${id}/actualizar-beneficiarios`, { beneficiarios })
 
+// ── OTP Consulta pública ──────────────────────────────────────
+export const solicitarOtpPublico       = (doc)       => publicApiClient.post('/afiliados/consulta/solicitar-otp', { numeroDocumento: doc })
+export const verificarOtpPublico       = (doc, otp)  => publicApiClient.post('/afiliados/consulta/verificar-otp', { numeroDocumento: doc, otp })
+export const actualizarContactoPublico = (id, datos) => publicApiClient.put(`/afiliados/${id}/datos-contacto`, datos)
+
+// ── OTP Reenvío ───────────────────────────────────────────────
+export const solicitarOtpReenvio = (id) => apiClient.post(`/afiliados/${id}/solicitar-otp-reenvio`)
+
 // ── Empresas ──────────────────────────────────────────────────
 export const buscarEmpresaPorNit = (nit) => apiClient.get(`/empresas/${nit}`)
 export const crearEmpresa = (payload) => apiClient.post('/empresas', payload)

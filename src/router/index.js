@@ -46,7 +46,7 @@ const routes = [
   },
   // Corrección de afiliación rechazada — solo el asesor dueño o admin
   {
-    path: '/corregir/:id',
+    path: '/corregir/:hash',
     name: 'corregirAfiliacion',
     component: CorregirView,
     meta: { requiereAuth: true }

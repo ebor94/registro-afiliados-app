@@ -268,7 +268,7 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
     afiliadoEditandoId.value = a.id
   }
 
-  async function submitCorreccion() {
+  async function submitCorreccion(otp = '') {
     const toast = useToastStore()
     isSubmitting.value = true
     errors.value = {}
@@ -278,7 +278,8 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
         ...afiliado,
         beneficiarios: beneficiarios.value,
         seguros:       seguros.value,
-        contrato:      { ...contrato }
+        contrato:      { ...contrato },
+        otp
       }
 
       let response

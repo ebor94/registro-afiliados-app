@@ -60,7 +60,7 @@ function toggleExpand(id) {
 }
 
 function corregir(afiliado) {
-  router.push({ name: 'corregirAfiliacion', params: { id: afiliado.id } })
+  router.push({ name: 'corregirAfiliacion', params: { hash: afiliado.hash } })
 }
 
 // ── Helpers ───────────────────────────────────────────────────

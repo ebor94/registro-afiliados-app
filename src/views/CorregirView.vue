@@ -3,14 +3,15 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAfiliadoStore } from '@/stores/useAfiliadoStore'
 import { useToastStore } from '@/stores/useToastStore'
-import { getAfiliado } from '@/api/afiliadoApi'
+import { getAfiliado, solicitarOtpReenvio } from '@/api/afiliadoApi'
+import { decodeId } from '@/utils/hashId'
 import AfiliadoForm from '@/components/afiliado/AfiliadoForm.vue'
 import SegurosForm from '@/components/afiliado/SegurosForm.vue'
 import ValorContrato from '@/components/afiliado/ValorContrato.vue'
 import BeneficiarioForm from '@/components/beneficiario/BeneficiarioForm.vue'
 import BeneficiarioList from '@/components/beneficiario/BeneficiarioList.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
-import CaptchaModal from '@/components/ui/CaptchaModal.vue'
+import OtpModal from '@/components/ui/OtpModal.vue'
 
 const route  = useRoute()
 const router = useRouter()
@@ -18,10 +19,16 @@ const store  = useAfiliadoStore()
 const toast  = useToastStore()
 
 const cargando   = ref(true)
-const showCaptcha = ref(false)
 const errorCarga = ref(false)
 const beneficiarioFormRef = ref(null)
-const afiliadoInfo = ref(null)  // para mostrar motivo de rechazo
+const afiliadoInfo = ref(null)
+const realId = ref(null)
+
+// ── OTP state ─────────────────────────────────────────
+const showOtp      = ref(false)
+const otpCargando  = ref(false)
+const otpError     = ref('')
+const celularMasked = ref('')
 
 function handleAddBeneficiario(beneficiario) {
   const added = store.addBeneficiario(beneficiario)
@@ -33,26 +40,53 @@ function handleEditBeneficiario(beneficiario, index) {
   beneficiarioFormRef.value?.$el?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
-function handleSubmitClick() {
+async function handleSubmitClick() {
   if (!store.isFormValid) {
     toast.warning('Complete todos los campos obligatorios del afiliado')
     return
   }
-  showCaptcha.value = true
-}
-
-async function handleCaptchaVerified() {
-  showCaptcha.value = false
+  // Solicitar OTP antes de reenviar
+  otpError.value = ''
   try {
-    await store.submitCorreccion()
-    router.push({ name: 'misAfiliaciones' })
+    const { data } = await solicitarOtpReenvio(realId.value)
+    celularMasked.value = data.celularMasked || ''
+    showOtp.value = true
   } catch {
-    // Error ya manejado en el store
+    toast.error('No se pudo enviar el código de verificación. Intenta de nuevo.')
   }
 }
 
-function handleCaptchaCancel() {
-  showCaptcha.value = false
+async function handleOtpVerificado(otp) {
+  otpError.value = ''
+  otpCargando.value = true
+  try {
+    await store.submitCorreccion(otp)
+    showOtp.value = false
+    router.push({ name: 'misAfiliaciones' })
+  } catch (err) {
+    otpCargando.value = false
+    if (err.response?.status === 401) {
+      otpError.value = 'Código OTP inválido o expirado. Intenta de nuevo.'
+    }
+    // Otros errores ya manejados en el store (toast)
+  } finally {
+    otpCargando.value = false
+  }
+}
+
+async function handleOtpReenviar() {
+  otpError.value = ''
+  try {
+    const { data } = await solicitarOtpReenvio(realId.value)
+    celularMasked.value = data.celularMasked || celularMasked.value
+  } catch {
+    otpError.value = 'Error al reenviar el código. Intenta de nuevo.'
+  }
+}
+
+function handleOtpCancel() {
+  showOtp.value = false
+  otpError.value = ''
 }
 
 function handleReset() {
@@ -63,7 +97,14 @@ function handleReset() {
 }
 
 onMounted(async () => {
-  const id = route.params.id
+  const hash = route.params.hash
+  const id = await decodeId(hash)
+  if (!id) {
+    toast.error('Enlace inválido o expirado')
+    router.push({ name: 'misAfiliaciones' })
+    return
+  }
+  realId.value = id
   try {
     const { data } = await getAfiliado(id)
     if (!data.success || !data.data) throw new Error('No encontrado')
@@ -187,11 +228,15 @@ onBeforeUnmount(() => {
 
     </template>
 
-    <!-- Captcha de confirmación (sin PagoInicialModal, ya se pagó al registrar) -->
-    <CaptchaModal
-      :visible="showCaptcha"
-      @verified="handleCaptchaVerified"
-      @cancel="handleCaptchaCancel"
+    <!-- OTP de confirmación antes de reenviar -->
+    <OtpModal
+      :visible="showOtp"
+      :celularMasked="celularMasked"
+      :cargando="otpCargando"
+      :error="otpError"
+      @verificar="handleOtpVerificado"
+      @reenviar="handleOtpReenviar"
+      @cancel="handleOtpCancel"
     />
 
   </div>

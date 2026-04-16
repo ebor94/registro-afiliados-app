@@ -1,48 +1,173 @@
 <template>
   <div class="space-y-6">
 
-    <!-- Buscador -->
-    <div class="flex gap-3">
-      <div class="relative flex-1">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          v-model="documento"
-          type="text"
-          placeholder="Número de documento del afiliado..."
-          class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent uppercase"
-          @keydown.enter="buscar"
-        />
+    <!-- ═══════════════════════════════════════════════════
+         ESTADO: idle / enviandoOtp — buscador de documento
+         ═══════════════════════════════════════════════════ -->
+    <template v-if="estado !== 'mostrandoDatos'">
+      <div class="flex gap-3">
+        <div class="relative flex-1">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            v-model="documento"
+            type="text"
+            placeholder="Número de documento del afiliado..."
+            :disabled="estado !== 'idle'"
+            class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent uppercase disabled:bg-gray-50 disabled:text-gray-400"
+            @keydown.enter="buscar"
+          />
+        </div>
+        <button
+          @click="buscar"
+          :disabled="estado !== 'idle' || !documento.trim()"
+          class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 rounded-lg transition-colors"
+        >
+          <svg v-if="estado === 'enviandoOtp'" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          {{ estado === 'enviandoOtp' ? 'Enviando código...' : 'Buscar' }}
+        </button>
       </div>
-      <button
-        @click="buscar"
-        :disabled="buscando || !documento.trim()"
-        class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 rounded-lg transition-colors"
-      >
-        <svg v-if="buscando" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+
+      <!-- Error de búsqueda / OTP -->
+      <div v-if="errorMensaje" class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
-        {{ buscando ? 'Buscando...' : 'Buscar' }}
-      </button>
-    </div>
+        {{ errorMensaje }}
+      </div>
+    </template>
 
-    <!-- Error de búsqueda -->
-    <div v-if="errorBusqueda" class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-      </svg>
-      {{ errorBusqueda }}
-    </div>
+    <!-- ═══════════════════════════════════════════════════
+         ESTADO: mostrandoDatos — resultados
+         ═══════════════════════════════════════════════════ -->
+    <template v-if="estado === 'mostrandoDatos' && afiliado">
 
-    <!-- Resultado -->
-    <template v-if="afiliado">
+      <!-- Encabezado con botón "Nueva consulta" -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2 text-emerald-700">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-sm font-semibold">Identidad verificada</span>
+        </div>
+        <button
+          @click="nuevaConsulta"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          Nueva consulta
+        </button>
+      </div>
 
       <!-- Info del afiliado (solo lectura) -->
       <AfiliadoDetalle :afiliado="afiliado" />
 
-      <!-- Sección de edición de beneficiarios -->
+      <!-- ── Sección datos de contacto editables ──────── -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100">
+          <h3 class="text-sm font-bold text-gray-800">Actualizar datos de contacto</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Puedes actualizar el teléfono, correo y dirección del afiliado principal.</p>
+        </div>
+        <div class="px-5 py-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Celular principal *</label>
+              <input
+                v-model="contacto.celular"
+                type="text"
+                inputmode="numeric"
+                maxlength="15"
+                class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Celular alternativo</label>
+              <input
+                v-model="contacto.celular2"
+                type="text"
+                inputmode="numeric"
+                maxlength="15"
+                class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Correo electrónico</label>
+              <input
+                v-model="contacto.email"
+                type="email"
+                class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Dirección</label>
+              <input
+                v-model="contacto.direccion"
+                type="text"
+                class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 uppercase"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Barrio</label>
+              <input
+                v-model="contacto.barrio"
+                type="text"
+                class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 uppercase"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Ciudad</label>
+              <input
+                v-model="contacto.ciudad"
+                type="text"
+                class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 uppercase"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-600 mb-1">Departamento</label>
+              <input
+                v-model="contacto.departamento"
+                type="text"
+                class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 uppercase"
+              />
+            </div>
+          </div>
+
+          <div v-if="errorContacto" class="mt-3 text-xs text-red-600 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            {{ errorContacto }}
+          </div>
+
+          <div v-if="contactoOk" class="mt-3 flex items-center gap-2 text-xs text-emerald-600">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Datos de contacto actualizados correctamente.
+          </div>
+        </div>
+        <div class="px-5 pb-5 flex justify-end">
+          <button
+            @click="guardarContacto"
+            :disabled="guardandoContacto"
+            class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 rounded-lg transition-colors"
+          >
+            <svg v-if="guardandoContacto" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+            {{ guardandoContacto ? 'Guardando...' : 'Guardar datos de contacto' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Sección actualización de beneficiarios ────── -->
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
         <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
           <div>
@@ -102,7 +227,7 @@
           Sin beneficiarios. Usa el botón "Agregar" para añadir.
         </div>
 
-        <!-- Formulario nuevo beneficiario (inline simple) -->
+        <!-- Formulario nuevo beneficiario (inline) -->
         <div v-if="showFormNuevo" class="px-5 py-4 border-t border-gray-100 bg-gray-50 space-y-3">
           <h4 class="text-sm font-semibold text-gray-700">Nuevo beneficiario</h4>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -180,29 +305,27 @@
           </div>
         </div>
 
-        <!-- Footer guardar -->
+        <!-- Footer guardar beneficiarios -->
         <div class="px-5 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-between gap-4">
-          <p v-if="hayPendientes" class="text-xs text-amber-600 font-medium">
-            Hay cambios sin guardar.
-          </p>
+          <p v-if="hayPendientes" class="text-xs text-amber-600 font-medium">Hay cambios sin guardar.</p>
           <p v-else class="text-xs text-gray-400">Sin cambios.</p>
           <button
-            @click="guardar"
-            :disabled="guardando || !hayPendientes"
+            @click="guardarBeneficiarios"
+            :disabled="guardandoBeneficiarios || !hayPendientes"
             class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 rounded-lg transition-colors"
           >
-            <svg v-if="guardando" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <svg v-if="guardandoBeneficiarios" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
             </svg>
-            {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+            {{ guardandoBeneficiarios ? 'Guardando...' : 'Guardar cambios' }}
           </button>
         </div>
       </div>
 
-      <!-- Toast éxito guardado -->
+      <!-- Toast éxito beneficiarios -->
       <div
-        v-if="guardadoOk"
+        v-if="beneficiariosOk"
         class="flex items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-sm text-emerald-700"
       >
         <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -213,46 +336,63 @@
 
     </template>
 
+    <!-- ═══════════════════════════════════════════════════
+         MODAL OTP
+         ═══════════════════════════════════════════════════ -->
+    <OtpModal
+      :visible="estado === 'esperandoOtp' || estado === 'verificando'"
+      :celularMasked="celularMasked"
+      :cargando="estado === 'verificando'"
+      :error="errorOtp"
+      @verificar="onVerificarOtp"
+      @reenviar="onReenviarOtp"
+      @cancel="nuevaConsulta"
+    />
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { consultarAfiliado, actualizarBeneficiariosConsulta } from '@/api/afiliadoApi'
+import {
+  solicitarOtpPublico,
+  verificarOtpPublico,
+  actualizarContactoPublico,
+  actualizarBeneficiariosConsulta
+} from '@/api/afiliadoApi'
 import AfiliadoDetalle from '@/components/aprobacion/AfiliadoDetalle.vue'
+import OtpModal from '@/components/ui/OtpModal.vue'
 
 const route = useRoute()
 
+// ── Estado de la máquina ──────────────────────────────
+// 'idle' | 'enviandoOtp' | 'esperandoOtp' | 'verificando' | 'mostrandoDatos'
+const estado       = ref('idle')
 const documento    = ref('')
-const buscando     = ref(false)
-const errorBusqueda = ref('')
+const celularMasked = ref('')
+const errorMensaje = ref('')
+const errorOtp     = ref('')
 const afiliado     = ref(null)
-const beneficiarios = ref([])   // copia editable
-const showFormNuevo = ref(false)
-const guardando    = ref(false)
-const guardadoOk   = ref(false)
-const errorNuevo   = ref('')
 
-const nuevo = ref(crearNuevo())
+// ── Datos de contacto editables ───────────────────────
+const contacto = ref({
+  celular: '', celular2: '', email: '',
+  direccion: '', barrio: '', ciudad: '', departamento: ''
+})
+const guardandoContacto = ref(false)
+const contactoOk        = ref(false)
+const errorContacto     = ref('')
 
-function crearNuevo() {
-  return {
-    tipoDocumento: '',
-    numeroDocumento: '',
-    primerNombre: '',
-    segundoNombre: '',
-    primerApellido: '',
-    segundoApellido: '',
-    fechaNacimiento: '',
-    edad: '',
-    genero: '',
-    parentesco: '',
-    tipoBeneficiario: '',
-    estado: 'INGRESO'
-  }
-}
+// ── Beneficiarios ──────────────────────────────────────
+const beneficiarios      = ref([])
+const showFormNuevo      = ref(false)
+const guardandoBeneficiarios = ref(false)
+const beneficiariosOk    = ref(false)
+const errorNuevo         = ref('')
+const nuevo              = ref(crearNuevo())
 
+// ── Catálogos ─────────────────────────────────────────
 const tiposDoc = ['CC', 'TI', 'CE', 'PA', 'NIT', 'PPT', 'ADT', 'RC']
 const parentescos = [
   'ABUELASTRO (A)', 'ABUELO (A)', 'AHIJADO (A)', 'ASEGURADO PRINCIPAL',
@@ -265,9 +405,21 @@ const parentescos = [
   'SUEGRASTRO', 'SUEGRO (A)', 'TIO (A)', 'YERNO/NUERA'
 ]
 
+// ── Computed ──────────────────────────────────────────
 const hayPendientes = computed(() =>
   beneficiarios.value.some(b => b._eliminado || b._nuevo)
 )
+
+// ── Helpers ───────────────────────────────────────────
+function crearNuevo() {
+  return {
+    tipoDocumento: '', numeroDocumento: '',
+    primerNombre: '', segundoNombre: '',
+    primerApellido: '', segundoApellido: '',
+    fechaNacimiento: '', edad: '', genero: '',
+    parentesco: '', tipoBeneficiario: '', estado: 'INGRESO'
+  }
+}
 
 function nombreCompleto(p) {
   return [p.primerNombre, p.segundoNombre, p.primerApellido, p.segundoApellido]
@@ -284,27 +436,102 @@ function calcularEdad() {
   nuevo.value.edad = edad
 }
 
+function poblarAfiliado(data) {
+  afiliado.value = data
+  contacto.value = {
+    celular:      data.celular      || '',
+    celular2:     data.celular2     || '',
+    email:        data.email        || '',
+    direccion:    data.direccion    || '',
+    barrio:       data.barrio       || '',
+    ciudad:       data.ciudad       || '',
+    departamento: data.departamento || ''
+  }
+  beneficiarios.value = (data.beneficiarios || [])
+    .filter(b => b.activo !== 0)
+    .map(b => ({ ...b, _eliminado: false, _nuevo: false }))
+}
+
+// ── Flujo OTP ─────────────────────────────────────────
+
 async function buscar() {
-  if (!documento.value.trim()) return
-  buscando.value = true
-  errorBusqueda.value = ''
-  afiliado.value = null
+  const doc = documento.value.trim()
+  if (!doc || estado.value !== 'idle') return
+  errorMensaje.value = ''
+  estado.value = 'enviandoOtp'
   try {
-    const { data } = await consultarAfiliado(documento.value.trim())
-    afiliado.value = data.data
-    // Copia editable de beneficiarios sin los inactivos
-    beneficiarios.value = (data.data.beneficiarios || [])
-      .filter(b => b.activo !== 0)
-      .map(b => ({ ...b, _eliminado: false, _nuevo: false }))
-    guardadoOk.value = false
+    const { data } = await solicitarOtpPublico(doc)
+    celularMasked.value = data.celularMasked || ''
+    errorOtp.value = ''
+    estado.value = 'esperandoOtp'
   } catch (e) {
-    errorBusqueda.value = e.response?.status === 404
+    estado.value = 'idle'
+    errorMensaje.value = e.response?.status === 404
       ? 'No se encontró ningún afiliado con ese número de documento.'
-      : 'Error al buscar. Intenta de nuevo.'
-  } finally {
-    buscando.value = false
+      : 'Error al enviar el código. Intenta de nuevo.'
   }
 }
+
+async function onVerificarOtp(otp) {
+  errorOtp.value = ''
+  estado.value = 'verificando'
+  try {
+    const { data } = await verificarOtpPublico(documento.value.trim(), otp)
+    poblarAfiliado(data.data)
+    estado.value = 'mostrandoDatos'
+  } catch (e) {
+    estado.value = 'esperandoOtp'
+    errorOtp.value = e.response?.status === 401
+      ? 'Código incorrecto o expirado. Intenta de nuevo.'
+      : 'Error al verificar. Intenta de nuevo.'
+  }
+}
+
+async function onReenviarOtp() {
+  errorOtp.value = ''
+  // El modal ya reinició su contador; enviamos el OTP de nuevo
+  try {
+    const { data } = await solicitarOtpPublico(documento.value.trim())
+    celularMasked.value = data.celularMasked || celularMasked.value
+  } catch {
+    errorOtp.value = 'Error al reenviar el código. Intenta de nuevo.'
+  }
+}
+
+function nuevaConsulta() {
+  estado.value = 'idle'
+  documento.value = ''
+  celularMasked.value = ''
+  errorMensaje.value = ''
+  errorOtp.value = ''
+  afiliado.value = null
+  beneficiarios.value = []
+  contactoOk.value = false
+  beneficiariosOk.value = false
+  showFormNuevo.value = false
+}
+
+// ── Guardar datos de contacto ─────────────────────────
+
+async function guardarContacto() {
+  if (!afiliado.value?.id) return
+  guardandoContacto.value = true
+  contactoOk.value = false
+  errorContacto.value = ''
+  try {
+    const { data } = await actualizarContactoPublico(afiliado.value.id, contacto.value)
+    // Actualizar afiliado con datos frescos
+    if (data.data) afiliado.value = { ...afiliado.value, ...data.data }
+    contactoOk.value = true
+    setTimeout(() => { contactoOk.value = false }, 4000)
+  } catch {
+    errorContacto.value = 'Error al guardar los datos de contacto. Intenta de nuevo.'
+  } finally {
+    guardandoContacto.value = false
+  }
+}
+
+// ── Gestión de beneficiarios ──────────────────────────
 
 function toggleEliminar(idx) {
   beneficiarios.value[idx]._eliminado = !beneficiarios.value[idx]._eliminado
@@ -333,26 +560,31 @@ function cancelarNuevo() {
   errorNuevo.value = ''
 }
 
-async function guardar() {
-  guardando.value = true
-  guardadoOk.value = false
+async function guardarBeneficiarios() {
+  if (!afiliado.value?.id) return
+  guardandoBeneficiarios.value = true
+  beneficiariosOk.value = false
   try {
     const payload = beneficiarios.value
       .filter(b => !b._eliminado)
+      // eslint-disable-next-line no-unused-vars
       .map(({ _eliminado, _nuevo, id, afiliadoId, createdAt, updatedAt, activo, motivoRechazo, ...rest }) => rest)
     await actualizarBeneficiariosConsulta(afiliado.value.id, payload)
-    guardadoOk.value = true
-    // Recargar para reflejar el estado actualizado
-    await buscar()
+    beneficiariosOk.value = true
+    // Limpiar flags locales (no podemos re-fetch sin nuevo OTP)
+    beneficiarios.value = beneficiarios.value
+      .filter(b => !b._eliminado)
+      .map(b => ({ ...b, _nuevo: false, _eliminado: false }))
+    setTimeout(() => { beneficiariosOk.value = false }, 4000)
   } catch {
-    errorBusqueda.value = 'Error al guardar los cambios. Intenta de nuevo.'
+    errorContacto.value = 'Error al guardar los cambios. Intenta de nuevo.'
   } finally {
-    guardando.value = false
+    guardandoBeneficiarios.value = false
   }
 }
 
+// ── onMounted ─────────────────────────────────────────
 onMounted(() => {
-  // Auto-buscar si viene con documento en los parámetros de ruta
   if (route.params.numerodocumento) {
     documento.value = route.params.numerodocumento
     buscar()
