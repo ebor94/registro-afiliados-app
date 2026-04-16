@@ -9,6 +9,28 @@
       />
     </div>
 
+    <!-- Panel de consulta: ¿Ya estás registrado? -->
+    <div class="bg-teal-50 border border-teal-200 rounded-xl px-5 py-4">
+      <button
+        @click="showConsulta = !showConsulta"
+        class="flex items-center gap-2 text-sm font-medium text-teal-700 hover:text-teal-900 transition-colors w-full text-left"
+      >
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <span class="flex-1">{{ showConsulta ? 'Ocultar consulta' : '¿Ya estás registrado? Consulta y actualiza tu información' }}</span>
+        <svg
+          :class="['w-4 h-4 transition-transform duration-200', showConsulta && 'rotate-180']"
+          fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      <div v-if="showConsulta" class="mt-4">
+        <ConsultaAfiliadoView />
+      </div>
+    </div>
+
     <div class="flex items-start justify-between gap-4 flex-wrap">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">Registro de Afiliado / Grupo Familiar</h2>
@@ -82,21 +104,6 @@
       @cancel="handleCaptchaCancel"
     />
 
-    <!-- Panel de consulta: ¿Ya estás registrado? -->
-    <div class="border-t border-gray-200 pt-6 mt-2 pb-8">
-      <button
-        @click="showConsulta = !showConsulta"
-        class="flex items-center gap-2 text-sm font-medium text-teal-700 hover:text-teal-900 transition-colors"
-      >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        {{ showConsulta ? 'Ocultar consulta' : '¿Ya estás registrado? Consulta y actualiza tu información' }}
-      </button>
-      <div v-if="showConsulta" class="mt-5">
-        <ConsultaAfiliadoView />
-      </div>
-    </div>
   </div>
 </template>
 

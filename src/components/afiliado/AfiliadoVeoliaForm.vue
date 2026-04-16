@@ -182,11 +182,11 @@ const opcionesCiudades = computed(() => {
 })
 
 const tiposDocumento = [
-  { value: 'CC', label: 'CC - Cedula de ciudadania' },
-  { value: 'TI', label: 'TI - Tarjeta de identidad' },
-  { value: 'CE', label: 'CE - Cedula de extranjeria' },
-  { value: 'PA', label: 'PA - Pasaporte' },
-  { value: 'NIT', label: 'NIT' }
+  { value: 'CC',  label: 'CC - Cédula de ciudadanía' },
+  { value: 'TI',  label: 'TI - Tarjeta de identidad' },
+  { value: 'CE',  label: 'CE - Cédula de extranjería' },
+  { value: 'PA',  label: 'PA - Pasaporte' },
+  { value: 'PPT', label: 'PPT - Permiso por Protección Temporal' }
 ]
 
 const opcionesSexo = [
