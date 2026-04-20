@@ -16,7 +16,9 @@ defineEmits(['update:modelValue'])
       class="mt-0.5 h-4 w-4 rounded border-gray-300 text-green-600 cursor-pointer flex-shrink-0 accent-green-600"
     />
     <label for="aceptacion-datos" class="text-sm text-gray-700 cursor-pointer leading-relaxed select-none">
-      He leído y acepto el
+     Declaro que conozco mis derechos a actualizar, rectificar, suprimir y consultar mis datos personales entregados a Serfunorte, y que los mismos serán tratados conforme a los lineamientos establecidos
+      en la política de privacidad que se puede consultar en el sitio web https://cucuta.losolivos.co , Autorizo el
+    
       <a
         href="https://cucuta.losolivos.co/politica-privacidad/"
         target="_blank"

@@ -148,7 +148,7 @@ onMounted(() => {
       brandName: 'Los Olivos - Veolia',
       brandImg: 'https://storage.googleapis.com/formailfiles/logo-1msg.svg',
       welcomeText: 'Necesitas ayuda? Estamos para servirle',
-      messageText: 'Hola, Soy de Veolia , necesito asesoria',
+      messageText: 'Hola, Soy colaborador de Veolia, necesito asesoria',
       ctaText: 'Escribenos, te ayudamos',
       phoneNumber: '573176652197'
     }
