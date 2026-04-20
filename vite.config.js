@@ -15,7 +15,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'https://mantix-api.losolivoscucuta.com:8444',
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false
       }
     }
   }
