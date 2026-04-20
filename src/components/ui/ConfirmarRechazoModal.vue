@@ -142,7 +142,7 @@ watch(() => props.visible, (val) => {
                         ? 'bg-emerald-100 text-emerald-700'
                         : 'bg-violet-100 text-violet-700'"
                     >
-                      {{ b.tipoBeneficiario === 'DE_LEY' ? 'De ley' : 'Adicional' }}
+                      {{ b.tipoBeneficiario === 'DE_LEY' ? 'Beneficiario' : 'Adicional' }}
                     </span>
                     <span v-if="b.activo === 0" class="text-xs text-red-500">(ya inactivo)</span>
                   </span>

@@ -201,7 +201,7 @@
               <p class="text-xs text-gray-500">
                 {{ b.tipoDocumento }} {{ b.numeroDocumento }} ·
                 <span :class="b.tipoBeneficiario === 'DE_LEY' ? 'text-emerald-600' : 'text-violet-600'">
-                  {{ b.tipoBeneficiario === 'DE_LEY' ? 'De ley' : 'Adicional' }}
+                  {{ b.tipoBeneficiario === 'DE_LEY' ? 'Beneficiario' : 'Adicional' }}
                 </span>
                 · {{ b.parentesco }}
               </p>
@@ -285,7 +285,7 @@
               <label class="block text-xs font-medium text-gray-600 mb-1">Tipo beneficiario</label>
               <select v-model="nuevo.tipoBeneficiario" class="w-full text-sm border border-gray-300 rounded-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500">
                 <option value="">— Seleccionar —</option>
-                <option value="DE_LEY">De ley</option>
+                <option value="DE_LEY">Beneficiario</option>
                 <option value="ADICIONAL">Adicional</option>
               </select>
             </div>

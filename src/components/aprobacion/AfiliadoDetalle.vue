@@ -119,7 +119,7 @@
         <div v-if="beneficiariosDeLey.length > 0" class="mb-4">
           <p class="text-xs font-medium text-emerald-600 mb-2 flex items-center gap-1">
             <span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-            De ley ({{ beneficiariosDeLey.length }})
+            Beneficiarios ({{ beneficiariosDeLey.length }})
           </p>
           <div class="overflow-x-auto rounded-lg border border-gray-200">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
