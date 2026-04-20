@@ -52,6 +52,9 @@ export const reenviarAfiliacionPublico = (id, payload) => {
   return publicApiClient.put(`/afiliados/${id}/reenviar`, payload)
 }
 
+// ── Trazabilidad ──────────────────────────────────────────────
+export const getTrazabilidadAfiliado = (id) => apiClient.get(`/afiliados/${id}/trazabilidad`)
+
 // ── Empresas ──────────────────────────────────────────────────
 export const buscarEmpresaPorNit = (nit) => apiClient.get(`/empresas/${nit}`)
 export const crearEmpresa = (payload) => apiClient.post('/empresas', payload)

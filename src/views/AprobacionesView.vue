@@ -148,6 +148,17 @@
               </td>
               <td class="px-4 py-3 text-right" @click.stop>
                 <div class="flex items-center justify-end gap-2">
+                  <!-- Trazabilidad -->
+                  <button
+                    @click="verTrazabilidad(afiliado)"
+                    title="Ver trazabilidad"
+                    class="inline-flex items-center justify-center w-8 h-8 text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg transition-colors"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
                   <!-- Rechazar -->
                   <button
                     @click="abrirRechazo(afiliado)"
@@ -203,6 +214,15 @@
       @cancel="showRechazoModal = false"
     />
 
+    <!-- Modal de trazabilidad -->
+    <TrazabilidadModal
+      :visible="showTrazabilidad"
+      :afiliado="afiliadoTrazabilidad"
+      :registros="registrosTrazabilidad"
+      :cargando="cargandoTrazabilidad"
+      @close="showTrazabilidad = false"
+    />
+
   </div>
 </template>
 
@@ -212,11 +232,13 @@ import {
   getAfiliadosPendientes,
   aprobarAfiliado as aprobarApi,
   rechazarAfiliado as rechazarApi,
-  rechazarBeneficiariosAfiliado
+  rechazarBeneficiariosAfiliado,
+  getTrazabilidadAfiliado
 } from '@/api/afiliadoApi'
 import { useToastStore } from '@/stores/useToastStore'
 import AfiliadoDetalle from '@/components/aprobacion/AfiliadoDetalle.vue'
 import ConfirmarRechazoModal from '@/components/ui/ConfirmarRechazoModal.vue'
+import TrazabilidadModal from '@/components/aprobacion/TrazabilidadModal.vue'
 
 const toast = useToastStore()
 
@@ -229,6 +251,12 @@ const busqueda             = ref('')
 const filtroOrigen         = ref('TODOS')
 const showRechazoModal     = ref(false)
 const afiliadoParaRechazar = ref(null)
+
+// Trazabilidad
+const showTrazabilidad      = ref(false)
+const afiliadoTrazabilidad  = ref(null)
+const registrosTrazabilidad = ref([])
+const cargandoTrazabilidad  = ref(false)
 
 const origenOpciones = [
   { value: 'TODOS',  label: 'Todos'   },
@@ -310,6 +338,21 @@ async function confirmarRechazo({ motivo, beneficiarioIds }) {
   } finally {
     rechazando.value = null
     afiliadoParaRechazar.value = null
+  }
+}
+
+async function verTrazabilidad(afiliado) {
+  afiliadoTrazabilidad.value  = afiliado
+  registrosTrazabilidad.value = []
+  showTrazabilidad.value      = true
+  cargandoTrazabilidad.value  = true
+  try {
+    const { data } = await getTrazabilidadAfiliado(afiliado.id)
+    registrosTrazabilidad.value = data.data
+  } catch {
+    toast.error('Error al cargar la trazabilidad')
+  } finally {
+    cargandoTrazabilidad.value = false
   }
 }
 
