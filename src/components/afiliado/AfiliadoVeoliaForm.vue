@@ -145,7 +145,7 @@
   <!-- Asistencia fuera de casa -->
   <fieldset class="bg-white rounded-xl border border-teal-200 shadow-sm p-5 mt-5">
     <legend class="flex items-center gap-2 text-base font-bold text-gray-800 px-2">
-      Asistencia fuera de casa
+     Asistencia fuera de casa (Opcional)
       <button
         type="button"
         @click="showAsistenciaInfo = true"
@@ -162,7 +162,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
       <BaseSelect
         v-model="store.afiliado.asistenciaFueraDeCasa"
-        label="¿Desea incluir asistencia fuera de casa?"
+        label="¿Desea incluir asistencia fuera de casa por solo $ 2.100 mes?"
         :options="opcionesSiNo"
         :error="store.errors['asistenciaFueraDeCasa']"
       />
