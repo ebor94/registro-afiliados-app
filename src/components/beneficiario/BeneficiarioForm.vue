@@ -389,7 +389,7 @@ const tiposDocumento = [
 
     <!-- Aviso de restricción según grupo seleccionado -->
     <div
-      v-if="store.afiliado.grupo === 'BASICO'"
+      v-if="store.afiliado.grupo === 'BASICO' && store.formMode !== 'veolia'"
       class="mb-3 flex items-start gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2"
     >
       <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
