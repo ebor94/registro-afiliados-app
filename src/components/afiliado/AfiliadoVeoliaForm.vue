@@ -142,58 +142,17 @@
     </div>
   </fieldset>
 
-  <!-- Asistencia fuera de casa -->
-  <fieldset class="bg-white rounded-xl border border-teal-200 shadow-sm p-5 mt-5">
-    <legend class="flex items-center gap-2 text-base font-bold text-gray-800 px-2">
-     Asistencia fuera de casa (Opcional)
-      <button
-        type="button"
-        @click="showAsistenciaInfo = true"
-        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold
-               bg-teal-100 hover:bg-teal-200 text-teal-700 border border-teal-300
-               cursor-pointer transition-colors shadow-sm"
-      >
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-        </svg>
-        Ver beneficios
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-        </svg>
-      </button>
-    </legend>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-      <BaseSelect
-        v-model="store.afiliado.asistenciaFueraDeCasa"
-        label="¿Desea incluir asistencia fuera de casa por solo $ 2.100 mes?"
-        :options="opcionesSiNo"
-        :error="store.errors['asistenciaFueraDeCasa']"
-      />
-    </div>
-  </fieldset>
-
-  <AsistenciaInfoModal :visible="showAsistenciaInfo" @close="showAsistenciaInfo = false" />
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed, watch, onMounted } from 'vue'
 import { useAfiliadoStore } from '@/stores/useAfiliadoStore'
 import { useAgeCalculator } from '@/composables/useAgeCalculator'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
-import AsistenciaInfoModal from '@/components/ui/AsistenciaInfoModal.vue'
 import { departamentos, ciudadesPorDepartamento } from '@/data/colombiaLocations'
 
 const store = useAfiliadoStore()
-
-const showAsistenciaInfo = ref(false)
-
-const opcionesSiNo = [
-  { value: 'SI', label: 'Sí, deseo la asistencia' },
-  { value: 'NO', label: 'No deseo la asistencia' }
-]
 
 // Activar modo veolia al montar el componente
 onMounted(() => {
