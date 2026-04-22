@@ -6,7 +6,7 @@ const beneficios = [
   {
     icon: '🏥',
     titulo: 'Médica',
-    descripcion: 'Orientación y asistencia médica para ti y tu familia donde estés.'
+    descripcion: 'Orientación y asistencia médica para ti y tu familia.'
   },
   {
     icon: '👴',
@@ -21,12 +21,12 @@ const beneficios = [
   {
     icon: '🎓',
     titulo: 'Educativa',
-    descripcion: 'Acceso a orientación y recursos educativos para toda la familia.'
+    descripcion: 'Asesoría y orientación en tareas nivel inicial para niños en etapa escolar.'
   },
   {
     icon: '🐾',
     titulo: 'Mascotas',
-    descripcion: 'Cuidado y orientación veterinaria para las mascotas del hogar.'
+    descripcion: 'Consulta, orientación veterinaria y asistencia exequial para la mascota.'
   },
   {
     icon: '📞',
@@ -88,7 +88,19 @@ const beneficios = [
           </div>
 
           <!-- Footer -->
-          <div class="px-6 pb-5">
+          <div class="px-6 pb-5 space-y-3">
+            <a
+              href="https://cucuta.losolivos.co/nuestros-planes/asistencias/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-center gap-1.5 text-sm text-teal-600 hover:text-teal-800 hover:underline transition-colors"
+            >
+              <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+              </svg>
+              Más información sobre asistencias
+            </a>
             <button
               @click="$emit('close')"
               class="w-full py-2.5 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-colors"
