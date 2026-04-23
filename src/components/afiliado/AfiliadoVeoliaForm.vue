@@ -99,6 +99,14 @@
         placeholder="correo@dominio.com"
         :error="store.errors['email']"
       />
+
+      <!-- Plan Veolia -->
+      <BaseSelect
+        v-model="store.afiliado.planVeolia"
+        label="Plan"
+        :options="opcionesPlanVeolia"
+        :error="store.errors['planVeolia']"
+      />
     </div>
   </fieldset>
 
@@ -107,6 +115,16 @@
     <legend class="text-base font-bold text-gray-800 px-2">Ubicacion</legend>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-2">
+      <!-- Unidad de negocio -->
+      <div class="md:col-span-2 lg:col-span-3">
+        <BaseSelect
+          v-model="store.afiliado.unidadNegocio"
+          label="Unidad de negocio"
+          :options="opcionesUnidades"
+          :error="store.errors['unidadNegocio']"
+        />
+      </div>
+
       <BaseSelect
         v-model="store.afiliado.departamento"
         label="Departamento"
@@ -145,23 +163,34 @@
 </template>
 
 <script setup>
-import { computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useAfiliadoStore } from '@/stores/useAfiliadoStore'
 import { useAgeCalculator } from '@/composables/useAgeCalculator'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import { departamentos, ciudadesPorDepartamento } from '@/data/colombiaLocations'
+import { getVeoliaUnidades } from '@/api/afiliadoApi'
 
 const store = useAfiliadoStore()
 
+// Unidades de negocio cargadas desde la API
+const unidades = ref([])
+
 // Activar modo veolia al montar el componente
-onMounted(() => {
+onMounted(async () => {
   store.setFormMode('veolia')
   // Defaults comerciales solo en registro nuevo (no en corrección)
   if (!store.modoCorreccion) {
     store.afiliado.canal    = 'EMPRESARIAL'
     store.afiliado.producto = 'INTEGRAL'
     store.afiliado.grupo    = 'BASICO'
+  }
+  // Cargar unidades de negocio
+  try {
+    const { data } = await getVeoliaUnidades()
+    unidades.value = data.data || []
+  } catch {
+    // Si falla, el select quedará vacío — no interrumpir el formulario
   }
 })
 
@@ -188,6 +217,11 @@ const opcionesCiudades = computed(() => {
   return ciudades.map(c => ({ value: c, label: c }))
 })
 
+// Unidades de negocio como opciones de select
+const opcionesUnidades = computed(() =>
+  unidades.value.map(u => ({ value: u.nombre, label: u.nombre }))
+)
+
 const tiposDocumento = [
   { value: 'CC',  label: 'CC - Cédula de ciudadanía' },
   { value: 'TI',  label: 'TI - Tarjeta de identidad' },
@@ -209,5 +243,10 @@ const opcionesEstadoCivil = [
   { value: 'DIVORCIADO', label: 'Divorciado(a)' },
   { value: 'VIUDO', label: 'Viudo(a)' },
   { value: 'SEPARADO', label: 'Separado(a)' }
+]
+
+const opcionesPlanVeolia = [
+  { value: 'PLATINO', label: 'Platino' },
+  { value: 'ORO',     label: 'Oro' }
 ]
 </script>

@@ -55,6 +55,9 @@ export const reenviarAfiliacionPublico = (id, payload) => {
 // ── Trazabilidad ──────────────────────────────────────────────
 export const getTrazabilidadAfiliado = (id) => apiClient.get(`/afiliados/${id}/trazabilidad`)
 
+// ── Veolia — unidades de negocio ─────────────────────────────
+export const getVeoliaUnidades = () => publicApiClient.get('/afiliados/veolia-unidades')
+
 // ── Empresas ──────────────────────────────────────────────────
 export const buscarEmpresaPorNit = (nit) => apiClient.get(`/empresas/${nit}`)
 export const crearEmpresa = (payload) => apiClient.post('/empresas', payload)

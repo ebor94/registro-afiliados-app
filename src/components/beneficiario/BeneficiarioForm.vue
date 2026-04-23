@@ -56,7 +56,7 @@ watch(edad, (val) => { form.edad = val })
 
 // ── Auto-calcular valorPorPersona para adicionales ────────────
 watch(
-  () => [form.tipoBeneficiario, form.fechaNacimiento, form.estado],
+  () => [form.tipoBeneficiario, form.fechaNacimiento, form.estado, store.afiliado.planVeolia],
   () => {
     if (form.tipoBeneficiario !== 'ADICIONAL') {
       form.valorPorPersona = ''
@@ -69,6 +69,23 @@ watch(
     if (!form.fechaNacimiento) return
 
     const edadActual = edad.value
+
+    // ── Veolia: tarifa por edad y plan ────────────────────────
+    if (store.formMode === 'veolia') {
+      const plan = store.afiliado.planVeolia
+      const tarifas = {
+        PLATINO: { menor70: 4207,  menor80: 20215, mayor80: 29800 },
+        ORO:     { menor70: 6338,  menor80: 26771, mayor80: 36800 }
+      }
+      const t = tarifas[plan]
+      if (!t) return  // sin plan seleccionado, no calcular
+      if (edadActual < 70)      form.valorPorPersona = t.menor70
+      else if (edadActual < 80) form.valorPorPersona = t.menor80
+      else                      form.valorPorPersona = t.mayor80
+      return
+    }
+
+    // ── Estándar ─────────────────────────────────────────────
     if (edadActual < 50) {
       form.valorPorPersona = store.tarifaActiva?.valorAdicional
         ? parseFloat(store.tarifaActiva.valorAdicional)
@@ -525,8 +542,9 @@ const tiposDocumento = [
         :uppercase="true"
       />
 
-      <!-- Valor por persona (automático para adicionales, manual para de ley) — oculto en Veolia -->
-      <div v-if="store.formMode !== 'veolia'">
+      <!-- Valor por persona (automático para adicionales, manual para de ley)
+           En Veolia: visible solo para ADICIONAL (se calcula por edad+plan); oculto para DE_LEY -->
+      <div v-if="store.formMode !== 'veolia' || form.tipoBeneficiario === 'ADICIONAL'">
         <BaseInput
           v-model="form.valorPorPersona"
           label="Valor por persona"

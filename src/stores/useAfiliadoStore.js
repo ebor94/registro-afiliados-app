@@ -45,6 +45,10 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
     nombreEmpresa: '',
     empresaId: null,
 
+    // ── Veolia ────────────────────────────────────────────────
+    unidadNegocio: '',
+    planVeolia: '',
+
     // ── Información comercial ─────────────────────────────────
     canal: '',
     producto: '',
@@ -232,6 +236,8 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
       nit:                 a.nit               || '',
       nombreEmpresa:       a.nombreEmpresa      || '',
       empresaId:           a.empresaId          || null,
+      unidadNegocio:       a.unidadNegocio      || '',
+      planVeolia:          a.planVeolia         || '',
       canal:               a.canal             || '',
       producto:            a.producto          || '',
       grupo:               a.grupo             || '',
@@ -348,6 +354,8 @@ export const useAfiliadoStore = defineStore('afiliado', () => {
       nit: '',
       nombreEmpresa: '',
       empresaId: null,
+      unidadNegocio: '',
+      planVeolia: '',
       canal: '',
       producto: '',
       grupo: '',
