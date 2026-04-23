@@ -380,6 +380,11 @@ const tiposDocumento = [
   { value: 'RC',  label: 'RC'  },
   { value: 'ADT', label: 'ADT' }
 ]
+
+const opcionesPlanVeolia = [
+  { value: 'PLATINO', label: 'Platino' },
+  { value: 'ORO',     label: 'Oro' }
+]
 </script>
 
 <template>
@@ -540,6 +545,15 @@ const tiposDocumento = [
         :readonly="true"
         :disabled="true"
         :uppercase="true"
+      />
+
+      <!-- Plan Veolia — visible solo para ADICIONAL en modo Veolia -->
+      <BaseSelect
+        v-if="store.formMode === 'veolia' && form.tipoBeneficiario === 'ADICIONAL'"
+        v-model="store.afiliado.planVeolia"
+        label="Plan"
+        :options="opcionesPlanVeolia"
+        :error="store.errors?.['planVeolia']"
       />
 
       <!-- Valor por persona (automático para adicionales, manual para de ley)

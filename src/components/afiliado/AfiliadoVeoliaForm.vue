@@ -100,13 +100,6 @@
         :error="store.errors['email']"
       />
 
-      <!-- Plan Veolia -->
-      <BaseSelect
-        v-model="store.afiliado.planVeolia"
-        label="Plan"
-        :options="opcionesPlanVeolia"
-        :error="store.errors['planVeolia']"
-      />
     </div>
   </fieldset>
 
@@ -245,8 +238,4 @@ const opcionesEstadoCivil = [
   { value: 'SEPARADO', label: 'Separado(a)' }
 ]
 
-const opcionesPlanVeolia = [
-  { value: 'PLATINO', label: 'Platino' },
-  { value: 'ORO',     label: 'Oro' }
-]
 </script>
